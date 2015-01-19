@@ -1,0 +1,21 @@
+*{
+	margin: 0px;
+	padding: 0px;
+	border: none;
+}
+body, html{
+	height: 100%;
+}
+body{
+	overflow: hidden;
+}
+#container{
+	height: 100%;
+	width: 100%;
+}
+canvas{
+	display: block;
+	border-top: 1px #000000 solid;
+	border-bottom: 1px #000000 solid;
+	margin: 50px auto;
+}
