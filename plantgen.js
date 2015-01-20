@@ -60,7 +60,7 @@ var Plantgen = new function(){
 
 		function distributeAngles(branchCount, span){
 			var angles = [];
-			var spanPerBranch = span / branchCount;
+			var spanPerBranch = span / (branchCount - 1);
 			var startingAngle = 0 - span/2;
 
 			for(var i = 0; i < branchCount; i++){
@@ -73,9 +73,9 @@ var Plantgen = new function(){
 			branch.branches = [];
 
 			//var branchCount = Math.ceil(Math.random() * 3) + 1;
-			var branchCount = 4;
+			var branchCount = 3;
 
-			var angles = distributeAngles(branchCount, 90/(180/Math.PI));
+			var angles = distributeAngles(branchCount, 45/(180/Math.PI));
 			
 			var widths = distributeWidths(branch.width, branchCount);
 			var widthsSum = 0;
@@ -94,7 +94,7 @@ var Plantgen = new function(){
 				
 				branch.branches.push(newBranch);
 				
-				if(branch.width > 1 && depth > 15){
+				if(branch.width > 3 && depth < 15){
 					addBranches(newBranch, depth + 1);
 				}
 			}
@@ -119,9 +119,9 @@ var Plantgen = new function(){
 		
 		context.beginPath();
 		context.lineWidth = branch.width;
-		context.moveTo(start[0] + branch.centerOffset, start[1] + branch.width/2);
+		context.moveTo(start[0] + branch.centerOffset, start[1] /*+ branch.width/2*/);
 		context.lineTo(targetX, targetY);
-		context.stroke();		
+		context.stroke();
 		
 		for(var i in branch.branches){
 			render(branch.branches[i], [targetX, targetY]);
