@@ -1,42 +1,55 @@
+
 var Plantgen = new function(){
 	var canvas = document.getElementById("canvas");
-	canvas.width = window.innerWidth;
+	canvas.width = document.getElementById("container").offsetWidth;
+	canvas.height = document.getElementById("container").offsetHeight;
 	var context = canvas.getContext("2d");
-	context.lineCap = "round";
+	//context.lineCap = "round";
 	
-	var plant0 = {
-		structure: {
-			 len: 100
-			,angle: 0
-			,width: 30
-			,centerOffset: 0
-			,isRoot: true
+	var rand = function(){};
+	var trees = [];
+	
+	var config = presets.default;
+	
+	function generateTrees(newConfig){
+		config = newConfig;
+		rand = new Math.seedrandom(config.seed);
+		
+		trees = [];
+		
+		for(var i = 0; i < config.treeCount; i++){
+			trees.push(
+				{
+					structure: {
+						 angle: 0
+						,width: config.baseWidth
+						//,len: config.baseLength
+						,len: 
+							  config.baseWidth * config.lengthWidthRatio
+							+ config.baseWidth * config.lengthWidthRatio * ((rand() - 0.5) * config.lengthRandomness)
+							+ config.lengthConstant
+						,centerOffset: 0
+						,isRoot: true
+					}
+				}
+			);
+			
+			generateStructure(trees[i]);
 		}
-	};
-
-	var plant1 = {
-		structure: {
-			 len: 100
-			,angle: 0
-			,width: 30
-			,centerOffset: 0
-			,isRoot: true
-		}
-	};
-
-	var plant2 = {
-		structure: {
-			 len: 100
-			,angle: 0
-			,width: 30
-			,centerOffset: 0
-			,isRoot: true
-		}
-	};
+		
+		renderAll();
+	}
+	
+	generateTrees(config);
 	
 	function generateStructure(plant){
-		function generateLength(previousLength, branchDepth){
-			return(previousLength/((10+branchDepth)/10) * (1 + (Math.random() - 0.5) * 0.3));
+		function generateLength(previousWidth){
+			var length = previousWidth * config.lengthWidthRatio + config.lengthConstant;
+			length += length * ((rand() - 0.5) * config.lengthRandomness);
+			if(length < 0){
+				length = 0;
+			}
+			return(length);
 		}
 		
 		function distributeWidths(previousWidth, branchCount){
@@ -45,7 +58,7 @@ var Plantgen = new function(){
 			var sum = 0;
 			// generate weights and calculate sum
 			for(var i = 0; i < branchCount; i++){
-				var weight = 1 + (Math.random() - 0.5) * 0.5;
+				var weight = 1 + (rand() - 0.5) * config.widthRandomness;
 				weights.push(weight);
 				sum += weight;
 			}
@@ -58,13 +71,27 @@ var Plantgen = new function(){
 			return widths;
 		}
 
-		function distributeAngles(branchCount, span){
+		function distributeAngles(branchCount){
+			
+			var randomAngle = degToRad(config.angleRandomness);
+			
+			var spanRandomness = degToRad(config.spanRandomness);
+			var angleSpan = degToRad(config.angleSpan);
+			angleSpan = angleSpan + (rand()-0.5) * spanRandomness;
+			
 			var angles = [];
-			var spanPerBranch = span / (branchCount - 1);
-			var startingAngle = 0 - span/2;
+			var spanPerBranch = 0;
+			if(branchCount > 1){
+				spanPerBranch = angleSpan / (branchCount - 1);
+			} else {
+				spanPerBranch = angleSpan;
+			}
+			var startingAngle = 0 - angleSpan/2;
 
 			for(var i = 0; i < branchCount; i++){
-				angles.push(startingAngle + i*spanPerBranch);
+				var angle = startingAngle + i*spanPerBranch;
+				angle += (rand() - 0.5) * randomAngle;
+				angles.push(angle);
 			}
 			return angles;
 		}
@@ -72,10 +99,10 @@ var Plantgen = new function(){
 		function addBranches(branch, depth){
 			branch.branches = [];
 
-			//var branchCount = Math.ceil(Math.random() * 3) + 1;
-			var branchCount = 3;
-
-			var angles = distributeAngles(branchCount, 45/(180/Math.PI));
+			//var branchCount = Math.ceil(rand() * 3) + 1;
+			var branchCount = config.branchCount;
+			
+			var angles = distributeAngles(branchCount);
 			
 			var widths = distributeWidths(branch.width, branchCount);
 			var widthsSum = 0;
@@ -86,7 +113,7 @@ var Plantgen = new function(){
 				widthsSum += widths[i];
 				
 				var newBranch = {
-					 len: generateLength(branch.len, depth)
+					 len: generateLength(branch.width)
 					,angle: angles[i]
 					,width: widths[i]
 					,centerOffset: widthsSum - widths[i]/2 - branch.width/2
@@ -94,7 +121,7 @@ var Plantgen = new function(){
 				
 				branch.branches.push(newBranch);
 				
-				if(branch.width > 3 && depth < 15){
+				if(branch.width > branchCount/2 && depth < 15){
 					addBranches(newBranch, depth + 1);
 				}
 			}
@@ -103,13 +130,12 @@ var Plantgen = new function(){
 		addBranches(plant.structure, 2);
 	}
 	
-	generateStructure(plant0);
-	generateStructure(plant1);
-	generateStructure(plant2);
-	
 	function render(branch, start){
-		var targetX = start[0] + Math.sin(branch.angle)*branch.len;
-		var targetY = start[1] - Math.cos(branch.angle)*branch.len;
+		//var targetX = start[0] + Math.sin(branch.angle)*branch.len;
+		//var targetY = start[1] - Math.cos(branch.angle)*branch.len;
+		
+		var targetX = start[0];
+		var targetY = start[1] - branch.len
 		
 		context.save();
 		
@@ -119,8 +145,25 @@ var Plantgen = new function(){
 		
 		context.beginPath();
 		context.lineWidth = branch.width;
-		context.moveTo(start[0] + branch.centerOffset, start[1] /*+ branch.width/2*/);
-		context.lineTo(targetX, targetY);
+		
+		var offsetX = (branch.centerOffset) * Math.cos(branch.angle);
+		var offsetY = 0 - (branch.centerOffset) * Math.sin(branch.angle);
+		
+		context.translate(offsetX, offsetY);
+		
+		context.moveTo(
+			 start[0]
+			,start[1]
+		);		
+		
+		context.bezierCurveTo(
+			 start[0] + ((branch.len * config.bendiness) * Math.sin(0-branch.angle))
+			,start[1] - ((branch.len * config.bendiness) * Math.cos(0-branch.angle))
+			,targetX
+			,targetY + (branch.len * config.bendiness)
+			,targetX
+			,targetY-0.5
+		);
 		context.stroke();
 		
 		for(var i in branch.branches){
@@ -130,7 +173,20 @@ var Plantgen = new function(){
 		context.restore();
 	}
 	
-	render(plant0.structure, [canvas.width/4 * 1, canvas.height]);
-	render(plant1.structure, [canvas.width/4 * 2, canvas.height]);
-	render(plant2.structure, [canvas.width/4 * 3, canvas.height]);
-}
+	function renderAll(){
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		for(var i in trees){
+			render(trees[i].structure, [(canvas.width/(config.treeCount+1)) * (~~i+1), canvas.height]);
+		}
+	}
+	
+	window.onresize = function(){
+		canvas.width = document.getElementById("container").offsetWidth;
+		canvas.height = document.getElementById("container").offsetHeight;
+		renderAll();
+	};
+	
+	return {
+		generateTrees: generateTrees
+	};
+};

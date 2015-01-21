@@ -2,9 +2,10 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
+		<link href="./input.css" rel="stylesheet" type="text/css" media="all">
 		<link href="./style.css" rel="stylesheet" type="text/css" media="all">
 		<title>
-			2D Plants
+			Plant Generation
 		</title>
 	</head>
 	<body>
@@ -12,8 +13,105 @@
 			<canvas id="canvas" width="1000" height="500">
 			</canvas>
 		</div>
+		<div id="controlsContainer">
+			<h1>
+				Plant Generation
+			</h1>
+			<div id="controls">
+				<div class="control">
+					<label for="c-seed">
+						Seed:
+					</label>
+					<input type="text" value="Foo" id="c-seed" />
+				</div>
+				<div class="control">
+					<label for="c-treeCount">
+						Tree Count:
+					</label>
+					<input type="number" value="1" id="c-treeCount" />
+				</div>
+				<div class="control">
+					<label for="c-baseWidth">
+						Base Width:
+					</label>
+					<input type="range" min="1" max="200" step="0.01" value="20" id="c-baseWidth" />
+					<input type="number" id="c-baseWidthValue" step="1" value="20" class="rangeValue" onchange="document.getElementById('c-baseWidth').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-lengthWidthRatio">
+						Length/Width Ratio:
+					</label>
+					<input type="range" min="0" max="20" step="0.1" value="5" id="c-lengthWidthRatio" />
+					<input type="number" id="c-lengthWidthRatioValue" step="1" value="5" class="rangeValue" onchange="document.getElementById('c-lengthWidthRatio').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-lengthConstant">
+						Length Constant:
+					</label>
+					<input type="range" min="0" max="200" step="0.1" value="10" id="c-lengthConstant" />
+					<input type="number" id="c-lengthConstantValue" step="1" value="10" class="rangeValue" onchange="document.getElementById('c-lengthConstant').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-bendiness">
+						Bendiness:
+					</label>
+					<input type="range" min="0.01" max="0.7" step="0.01" value="0.3" id="c-bendiness" />
+					<input type="number" id="c-bendinessValue" step="0.1" value="0.3" class="rangeValue" onchange="document.getElementById('c-bendiness').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-angleSpan">
+						Angle Span:
+					</label>
+					<input type="range" min="0" max="360" step="0.01" value="60" id="c-angleSpan" />
+					<input type="number" id="c-angleSpanValue" step="1" value="60" class="rangeValue" onchange="document.getElementById('c-angleSpan').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-lengthRandomness">
+						Length Randomness:
+					</label>
+					<input type="range" min="0" max="3" step="0.01" value="0.3" id="c-lengthRandomness" />
+					<input type="number" id="c-lengthRandomnessValue" step="0.01" value="0.3" class="rangeValue" onchange="document.getElementById('c-lengthRandomness').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-spanRandomness">
+						Span Randomness:
+					</label>
+					<input type="range" min="0" max="360" step="0.01" value="20" id="c-spanRandomness" />
+					<input type="number" id="c-spanRandomnessValue" step="1" value="360" class="rangeValue" onchange="document.getElementById('c-spanRandomness').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-angleRandomness">
+						Angle Randomness:
+					</label>
+					<input type="range" min="0" max="360" step="0.01" value="20" id="c-angleRandomness" />
+					<input type="number" id="c-angleRandomnessValue" step="1" value="360" class="rangeValue" onchange="document.getElementById('c-angleRandomness').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-widthRandomness">
+						Width Randomness:
+					</label>
+					<input type="range" min="0" max="2" step="0.01" value="0.5" id="c-widthRandomness" />
+					<input type="number" id="c-widthRandomnessValue" step="0.1" value="0.5" class="rangeValue" onchange="document.getElementById('c-widthRandomness').value = this.value;">
+				</div>
+				<div class="control">
+					<label for="c-branchCount">
+						Branch Count:
+					</label>
+					<input type="range" min="1" max="10" step="1" value="3" id="c-branchCount" />
+					<input type="number" id="c-branchCountValue" step="0.1" value="3" class="rangeValue" onchange="document.getElementById('c-branchCount').value = this.value;">
+				</div>
+			</div>
+			<div id="footer">
+				By <a href="http://rolandrytz.ch">Roland Rytz</a>.<br />
+				Source on <a href="https://github.com/RolandR/plants">GitHub</a>.
+			</div>
+		</div>
 		
+		<script type="text/javascript" src="./seededRNG.js"></script>
+		<script type="text/javascript" src="./conversions.js"></script>
+		<script type="text/javascript" src="./presets.js"></script>
 		<script type="text/javascript" src="./plantgen.js"></script>
+		<script type="text/javascript" src="./controls.js"></script>
 		
 	</body>
 </html>

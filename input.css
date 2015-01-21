@@ -1,0 +1,63 @@
+textarea,
+div [contenteditable="true"]{
+	font-size: 14px;
+	border: 1px #DDDDDD solid;
+	outline: none;
+	background-color: #FFFFFF;
+	white-space: pre;
+	overflow-y: auto;
+	font-family: "Courier New", monospace;
+	box-sizing: border-box;
+	resize: none; 
+}
+
+textarea:hover, textarea:active, textarea:focus,
+div [contenteditable="true"]:hover, div [contenteditable="true"]:active, div [contenteditable="true"]:focus{
+	border-color: #AAAAAA;
+}
+
+button{
+	border: 1px #CCCCCC solid;
+	background-image: linear-gradient(to bottom, #FFFFFF, #F0F0F0);
+	padding: 3px 6px;
+	cursor: pointer;
+	outline: none;
+	height: 25px;
+	font-family: inherit;
+}
+
+button:hover{
+	border: 1px #DDDDDD solid;
+	background-color: #FFFFFF;
+	background-image: none;
+}
+
+button:active{
+	border: 1px #BBBBBB solid;
+	background-image: linear-gradient(to top, #FFFFFF, #EEEEEE);
+}
+
+input[type="text"],
+input[type="number"]{
+	width: 160px;
+	border: 1px #DDDDDD solid;
+	outline: none;
+	height: 15px;
+	padding: 2px;
+	font-family: "Courier New", monospace;
+}
+
+input[type="text"]:hover, input[type="text"]:active, input[type="text"]:focus,
+input[type="number"]:hover, input[type="number"]:active, input[type="number"]:focus{
+	border-color: #AAAAAA;
+}
+
+input[type="range"]{
+	width: 110px;
+}
+
+input[type="text"].rangeValue,
+input[type="number"].rangeValue{
+	width: 40px;
+	margin-right: 10px;
+}

@@ -1,21 +1,88 @@
+
+@import url(openSansFont/OpenSans.css);
+
 *{
 	margin: 0px;
 	padding: 0px;
 	border: none;
 }
+
 body, html{
 	height: 100%;
 }
+
 body{
+	font-family: OpenSans, sans-serif;
 	overflow: hidden;
+	background-color: #000000;
 }
+
+a{
+	text-decoration: none;
+	color: #0055FF;
+}
+
+a:hover{
+	text-decoration: underline;
+}
+
+h1{
+	font-weight: 200;
+	line-height: 1em;
+}
+
 #container{
-	height: 100%;
-	width: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 20px;
+	right: 350px;
+	box-sizing: border-box;
+	background-color: #FFFFFF;
 }
+
 canvas{
 	display: block;
-	border-top: 1px #000000 solid;
-	border-bottom: 1px #000000 solid;
-	margin: 50px auto;
+}
+
+#controlsContainer{
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	width: 350px;
+	box-sizing: border-box;
+	border-left: 1px #000000 solid;
+	background-color: #F6F8FF;
+	padding: 10px;
+}
+
+#controls{
+	position: absolute;
+	top: 70px;
+	bottom: 60px;
+	left: 10px;
+	right: 10px;
+	overflow: auto;
+}
+
+#footer{
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	text-align: right;
+	padding: 10px;
+}
+
+.control{
+	margin: 3px 0px;
+	padding: 2px 0px;
+}
+
+.control:nth-child(2n){
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.control input{
+	float: right;
 }
