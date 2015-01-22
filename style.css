@@ -36,7 +36,7 @@ h1{
 	top: 0px;
 	left: 0px;
 	bottom: 20px;
-	right: 350px;
+	right: 370px;
 	box-sizing: border-box;
 	background-color: #FFFFFF;
 }
@@ -50,7 +50,7 @@ canvas{
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
-	width: 350px;
+	width: 370px;
 	box-sizing: border-box;
 	border-left: 1px #000000 solid;
 	background-color: #F6F8FF;
