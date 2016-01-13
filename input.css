@@ -42,9 +42,10 @@ input[type="number"]{
 	width: 160px;
 	border: 1px #DDDDDD solid;
 	outline: none;
-	height: 15px;
+	height: 18px;
+	margin: -1px 0px;
 	padding: 2px;
-	font-family: "Courier New", monospace;
+	font-family: OpenSans, sans-serif;
 }
 
 input[type="text"]:hover, input[type="text"]:active, input[type="text"]:focus,

@@ -211,6 +211,120 @@ var Controls = new function(){
 				apply();
 			}
 		}
+		,gravity: {
+			elements: [
+				 document.getElementById("c-gravity")
+				,document.getElementById("c-gravityValue")
+			]
+			,value: 0.5
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,minWidth: {
+			elements: [
+				 document.getElementById("c-minWidth")
+				,document.getElementById("c-minWidthValue")
+			]
+			,value: 0.5
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,maxDepth: {
+			elements: [
+				 document.getElementById("c-maxDepth")
+				,document.getElementById("c-maxDepthValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					if(value < 1){
+						value = 1;
+					}
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,stemAngle: {
+			elements: [
+				 document.getElementById("c-stemAngle")
+				,document.getElementById("c-stemAngleValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					if(value < 0){
+						value = 0;
+					} else if(value > 1){
+						value = 1;
+					}
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,stemWeight: {
+			elements: [
+				 document.getElementById("c-stemWeight")
+				,document.getElementById("c-stemWeightValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					if(value < 0){
+						value = 0;
+					} else if(value > 1){
+						value = 1;
+					}
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,branchOverwidth: {
+			elements: [
+				 document.getElementById("c-branchOverwidth")
+				,document.getElementById("c-branchOverwidthValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					if(value < 0){
+						value = 0;
+					} else if(value > 1){
+						value = 1;
+					}
+					this.value = value;
+				}
+				apply();
+			}
+		}
 	}
 	
 	function init(){
