@@ -218,7 +218,7 @@ var Controls = new function(){
 			]
 			,value: 0.5
 			,update: function(){
-				var value = this.elements[0].value;
+				var value = Math.pow(this.elements[0].value, 3);
 				this.elements[1].value = value;
 				value = parseFloat(value);
 				if(!isNaN(value)){
@@ -231,6 +231,22 @@ var Controls = new function(){
 			elements: [
 				 document.getElementById("c-elasticity")
 				,document.getElementById("c-elasticityValue")
+			]
+			,value: 13
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,density: {
+			elements: [
+				 document.getElementById("c-density")
+				,document.getElementById("c-densityValue")
 			]
 			,value: 13
 			,update: function(){

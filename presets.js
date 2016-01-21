@@ -19,5 +19,6 @@ var presets = {
 		,stemAngle: 0
 		,stemWeight: 0
 		,elasticity: 13
+		,density: 0.65
 	}
 };
