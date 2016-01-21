@@ -9,6 +9,8 @@ var Plantgen = new function(){
 	var trees = [];
 	
 	var config = presets.default;
+
+	generateTrees(config);
 	
 	function generateTrees(newConfig){
 		config = newConfig;
@@ -25,7 +27,7 @@ var Plantgen = new function(){
 			trees.push(
 				{
 					structure: {
-						 angle: 0
+						 angle: 0 + degToRad(config.angleRandomness) * (rand() - 0.5)
 						,width: baseWidth
 						,len: 
 							  baseWidth * config.lengthWidthRatio
@@ -43,8 +45,6 @@ var Plantgen = new function(){
 		renderAll();
 		document.getElementById("branchCount").innerHTML = totalBranchCount;
 	}
-	
-	generateTrees(config);
 	
 	function generateStructure(plant){
 		
@@ -177,33 +177,41 @@ var Plantgen = new function(){
 		
 		context.save();
 
-		var gravityAttack = Math.sin(up + branch.angle);
+		var rotation;
 
-		// fancy physics calculations for how much gravity bends the branch
-		var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * config.density;
-		branchWeight = branchWeight / 1000; // g to kg
-		
-		var i_y = (Math.PI / 4) * Math.pow(branch.width, 4) * 10e-8;
-		
-		var bendDistance = ((config.gravity * gravityAttack * (branchWeight/2))*Math.pow(gravityAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
-		
-		var originalY = Math.cos(up + branch.angle) * branch.len;
-		var newY = originalY - bendDistance;
+		if(controls.gravity != 0){
 
-		var newX = gravityAttack*branch.len;
+			var gravityAttack = Math.sin(up + branch.angle);
 
-		var newAngle = Math.PI/2;
-		if(newY != 0){
-			newAngle = Math.atan(newX/newY);
+			// fancy physics calculations for how much gravity bends the branch
+			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * config.density;
+			branchWeight = branchWeight / 1000; // g to kg
+			
+			var i_y = (Math.PI / 4) * Math.pow(branch.width, 4) * 10e-8;
+			
+			var bendDistance = ((config.gravity * gravityAttack * (branchWeight/2))*Math.pow(gravityAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
+			
+			var originalY = Math.cos(up + branch.angle) * branch.len;
+			var newY = originalY - bendDistance;
+
+			var newX = gravityAttack*branch.len;
+
+			var newAngle = Math.PI/2;
+			if(newY != 0){
+				newAngle = Math.atan(newX/newY);
+			}
+			
+			var rotation = (newAngle - up);
+
+			if(newY < 0){
+				rotation += Math.PI;
+			}
+			
+			up = up + rotation;
+
+		} else {
+			rotation = branch.angle;
 		}
-		
-		var rotation = (newAngle - up);
-
-		if(newY < 0){
-			rotation += Math.PI;
-		}
-		
-		up = up + rotation;
 		
 		context.translate(start[0], start[1]);
 		context.rotate(rotation);

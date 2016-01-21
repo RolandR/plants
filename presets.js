@@ -1,7 +1,7 @@
 var presets = {
 	default: {
 		 treeCount: 1
-		,seed: "Foo bar"
+		,seed: "A tree."
 		,baseWidth: 25
 		,branchOverwidth: 0.33
 		,lengthWidthRatio: 5
