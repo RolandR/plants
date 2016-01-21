@@ -357,6 +357,18 @@ var Controls = new function(){
 				apply();
 			}
 		}
+		,keepStructure: {
+			elements: [
+				 document.getElementById("c-keepStructure")
+			]
+			,value: true
+			,update: function(){
+				var value = this.elements[0].checked;
+				console.log(value);
+				this.value = value;
+				apply();
+			}
+		}
 	}
 	
 	function init(){
@@ -368,6 +380,7 @@ var Controls = new function(){
 				for(var e in input.elements){
 					input.elements[e].value = input.value;
 					input.elements[e].oninput = input.update.bind(input);
+					input.elements[e].onclick = input.update.bind(input);
 				}
 			}
 		}

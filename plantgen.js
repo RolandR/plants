@@ -122,25 +122,22 @@ var Plantgen = new function(){
 			var angles = distributeAngles(branchCount, stemNo);
 			var widths = distributeWidths(branch.width, branchCount, stemNo);
 			
-			var widthsSum = 0;
-			
 			for(var i = 0; i < branchCount; i++){
-				// WidthsSum is used to calculate the offset of the new
-				// branch from the center of the stemAngle.
-				widthsSum += widths[i];
 				
 				if(widths[i] < config.minWidth){
 
-					// Here, we do all rand() calls that would have done if minimum width weren't in place
-					var endBranches = Math.pow(branchCount, (config.maxDepth - depth))
-					var skippedBranchings = endBranches - 1;
+					if(config.keepStructure){
+						// Here, we do all rand() calls that would have done if minimum width weren't in place
+						var endBranches = Math.pow(branchCount, (config.maxDepth - depth))
+						var skippedBranchings = endBranches - 1;
 
-					var randCallsPerBranching = 1 + 3 * branchCount;
+						var randCallsPerBranching = 1 + 3 * branchCount;
 
-					var randCallsSkipped = randCallsPerBranching * skippedBranchings + 1;
+						var randCallsSkipped = randCallsPerBranching * skippedBranchings + 1;
 
-					while(randCallsSkipped--){
-						rand();
+						while(randCallsSkipped--){
+							rand();
+						}
 					}
 					
 					continue;
@@ -148,9 +145,8 @@ var Plantgen = new function(){
 				
 				totalBranchCount++;
 				
-				
-				
-				var centerOffset = widthsSum - widths[i]/2 - branch.width/2;
+				var centersSpan = branch.width - widths[0]/2 - widths[branchCount-1]/2;
+				var centerOffset = (i / (branchCount-1)) * centersSpan + widths[0]/2 - branch.width/2;
 				
 				var newBranch = {
 					 len: generateLength(branch.width)
