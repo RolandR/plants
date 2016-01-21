@@ -18,5 +18,6 @@ var presets = {
 		,maxDepth: 15
 		,stemAngle: 0
 		,stemWeight: 0
+		,elasticity: 13
 	}
 };

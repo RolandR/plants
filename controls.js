@@ -227,6 +227,22 @@ var Controls = new function(){
 				apply();
 			}
 		}
+		,elasticity: {
+			elements: [
+				 document.getElementById("c-elasticity")
+				,document.getElementById("c-elasticityValue")
+			]
+			,value: 13
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
 		,minWidth: {
 			elements: [
 				 document.getElementById("c-minWidth")
