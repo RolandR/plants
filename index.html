@@ -22,146 +22,139 @@
 					<label for="c-seed">
 						Seed:
 					</label>
-					<input type="text" value="Foo" id="c-seed" />
+					<input type="text" id="c-seed" />
 				</div>
 				<div class="control">
 					<label for="c-treeCount">
 						Tree Count:
 					</label>
-					<input type="number" value="1" id="c-treeCount" />
+					<input type="number" id="c-treeCount" />
 				</div>
 				<div class="control">
 					<label for="c-baseWidth">
 						Base Width:
 					</label>
-					<input type="range" min="1" max="100" step="0.01" value="20" id="c-baseWidth" />
-					<input type="text" id="c-baseWidthValue" step="1" value="20" class="rangeValue" onchange="document.getElementById('c-baseWidth').value = this.value;">
+					<input type="range" min="1" max="100" step="0.01" id="c-baseWidth" />
+					<input type="text" id="c-baseWidthValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-branchOverwidth">
 						Branch Overwidth:
 					</label>
-					<input type="range" min="0" max="1" step="0.01" value="0" id="c-branchOverwidth" />
-					<input type="text" id="c-branchOverwidthValue" value="0" class="rangeValue" onchange="document.getElementById('c-branchOverwidth').value = this.value;">
+					<input type="range" min="0" max="1" step="0.01" id="c-branchOverwidth" />
+					<input type="text" id="c-branchOverwidthValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-lengthWidthRatio">
 						Length/Width Ratio:
 					</label>
-					<input type="range" min="0" max="20" step="0.1" value="5" id="c-lengthWidthRatio" />
-					<input type="text" id="c-lengthWidthRatioValue" step="1" value="5" class="rangeValue" onchange="document.getElementById('c-lengthWidthRatio').value = this.value;">
+					<input type="range" min="0" max="20" step="0.1" id="c-lengthWidthRatio" />
+					<input type="text" id="c-lengthWidthRatioValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-lengthConstant">
 						Length Constant:
 					</label>
-					<input type="range" min="0" max="100" step="0.1" value="10" id="c-lengthConstant" />
-					<input type="text" id="c-lengthConstantValue" step="1" value="10" class="rangeValue" onchange="document.getElementById('c-lengthConstant').value = this.value;">
+					<input type="range" min="0" max="100" step="0.1" id="c-lengthConstant" />
+					<input type="text" id="c-lengthConstantValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-bendiness">
 						Bendiness:
 					</label>
-					<input type="range" min="0.01" max="0.7" step="0.01" value="0.3" id="c-bendiness" />
-					<input type="text" id="c-bendinessValue" step="0.1" value="0.3" class="rangeValue" onchange="document.getElementById('c-bendiness').value = this.value;">
+					<input type="range" min="0.01" max="0.7" step="0.01" id="c-bendiness" />
+					<input type="text" id="c-bendinessValue" step="0.1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-angleSpan">
 						Angle Span:
 					</label>
-					<input type="range" min="0" max="180" step="0.01" value="60" id="c-angleSpan" />
-					<input type="text" id="c-angleSpanValue" step="1" value="60" class="rangeValue" onchange="document.getElementById('c-angleSpan').value = this.value;">
+					<input type="range" min="0" max="180" step="0.01" id="c-angleSpan" />
+					<input type="text" id="c-angleSpanValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-lengthRandomness">
 						Length Randomness:
 					</label>
-					<input type="range" min="0" max="3" step="0.01" value="0.3" id="c-lengthRandomness" />
-					<input type="text" id="c-lengthRandomnessValue" step="0.01" value="0.3" class="rangeValue" onchange="document.getElementById('c-lengthRandomness').value = this.value;">
+					<input type="range" min="0" max="3" step="0.01" id="c-lengthRandomness" />
+					<input type="text" id="c-lengthRandomnessValue" step="0.01" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-spanRandomness">
 						Span Randomness:
 					</label>
-					<input type="range" min="0" max="180" step="0.01" value="20" id="c-spanRandomness" />
-					<input type="text" id="c-spanRandomnessValue" step="1" value="360" class="rangeValue" onchange="document.getElementById('c-spanRandomness').value = this.value;">
+					<input type="range" min="0" max="180" step="0.01" id="c-spanRandomness" />
+					<input type="text" id="c-spanRandomnessValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-angleRandomness">
 						Angle Randomness:
 					</label>
-					<input type="range" min="0" max="180" step="0.01" value="20" id="c-angleRandomness" />
-					<input type="text" id="c-angleRandomnessValue" step="1" value="360" class="rangeValue" onchange="document.getElementById('c-angleRandomness').value = this.value;">
+					<input type="range" min="0" max="180" step="0.01" id="c-angleRandomness" />
+					<input type="text" id="c-angleRandomnessValue" step="1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-widthRandomness">
 						Width Randomness:
 					</label>
-					<input type="range" min="0" max="2" step="0.01" value="0.5" id="c-widthRandomness" />
-					<input type="text" id="c-widthRandomnessValue" step="0.1" value="0.5" class="rangeValue" onchange="document.getElementById('c-widthRandomness').value = this.value;">
+					<input type="range" min="0" max="2" step="0.01" id="c-widthRandomness" />
+					<input type="text" id="c-widthRandomnessValue" step="0.1" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-branchCount">
 						Branch Count:
 					</label>
-					<input type="range" min="1" max="10" step="1" value="3" id="c-branchCount" />
-					<input type="number" id="c-branchCountValue" step="1" value="3" class="rangeValue" onchange="document.getElementById('c-branchCount').value = this.value;">
+					<input type="range" min="1" max="10" step="1" id="c-branchCount" />
+					<input type="number" id="c-branchCountValue" step="1" class="rangeValue">
 				</div>
-				<!--div class="control">
-					<label for="c-gravity">
-						Gravity:
-					</label>
-					<input type="range" min="-1" max="1" step="0.01" value="0" id="c-gravity" />
-					<input type="text" id="c-gravityValue" step="0.1" value="0" class="rangeValue" onchange="document.getElementById('c-gravity').value = this.value;">
-				</div-->
 				<div class="control">
 					<label for="c-minWidth">
 						Minimum Width:
 					</label>
-					<input type="range" min="0.01" max="10" step="0.01" value="0.5" id="c-minWidth" />
-					<input type="text" id="c-minWidthValue" value="0.5" class="rangeValue" onchange="document.getElementById('c-minWidth').value = this.value;">
+					<input type="range" min="0.01" max="10" step="0.01" id="c-minWidth" />
+					<input type="text" id="c-minWidthValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-maxDepth">
 						Max branch depth:
 					</label>
-					<input type="range" min="1" max="50" step="1" value="0" id="c-maxDepth" />
-					<input type="text" id="c-maxDepthValue" value="0" class="rangeValue" onchange="document.getElementById('c-maxDepth').value = this.value;">
+					<input type="range" min="1" max="50" step="1" id="c-maxDepth" />
+					<input type="text" id="c-maxDepthValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-stemAngle">
 						Stem angle:
 					</label>
-					<input type="range" min="0" max="1" step="0.01" value="0" id="c-stemAngle" />
-					<input type="text" id="c-stemAngleValue" value="0" class="rangeValue" onchange="document.getElementById('c-stemAngle').value = this.value;">
+					<input type="range" min="0" max="1" step="0.01" id="c-stemAngle" />
+					<input type="text" id="c-stemAngleValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-stemWeight">
 						Stem weight:
 					</label>
-					<input type="range" min="0" max="1" step="0.01" value="0" id="c-stemWeight" />
-					<input type="text" id="c-stemWeightValue" value="0" class="rangeValue" onchange="document.getElementById('c-stemWeight').value = this.value;">
+					<input type="range" min="0" max="1" step="0.01" id="c-stemWeight" />
+					<input type="text" id="c-stemWeightValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-gravity">
 						Gravity:
 					</label>
-					<input type="range" min="-2" max="2" step="0.01" value="0" id="c-gravity" />
-					<input type="text" id="c-gravityValue" value="0" class="rangeValue" onchange="document.getElementById('c-gravity').value = this.value;">
+					<input type="range" min="-2" max="2" step="0.01" id="c-gravity" />
+					<input type="text" id="c-gravityValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-elasticity">
 						Elasticity Module:
 					</label>
-					<input type="range" min="1" max="30" step="0.01" value="0" id="c-elasticity" />
-					<input type="text" id="c-elasticityValue" value="0" class="rangeValue" onchange="document.getElementById('c-elasticity').value = this.value;">
+					<input type="range" min="1" max="30" step="0.01" id="c-elasticity" />
+					<input type="text" id="c-elasticityValue" class="rangeValue">
 				</div>
 				<div class="control">
-					<label for="c-density">
-						Wood Density:
+					<label for="c-thinBranchStrength">
+						Thin branch strength:
 					</label>
-					<input type="range" min="0" max="3" step="0.01" value="0" id="c-density" />
-					<input type="text" id="c-densityValue" value="0" class="rangeValue" onchange="document.getElementById('c-density').value = this.value;">
+					<input type="range" min="0" max="2" step="0.01" id="c-thinBranchStrength" />
+					<input type="text" id="c-thinBranchStrengthValue" class="rangeValue">
 				</div>
 				<div class="control">
 					<label for="c-keepStructure">

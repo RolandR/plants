@@ -243,12 +243,12 @@ var Controls = new function(){
 				apply();
 			}
 		}
-		,density: {
+		,thinBranchStrength: {
 			elements: [
-				 document.getElementById("c-density")
-				,document.getElementById("c-densityValue")
+				 document.getElementById("c-thinBranchStrength")
+				,document.getElementById("c-thinBranchStrengthValue")
 			]
-			,value: 13
+			,value: 1
 			,update: function(){
 				var value = this.elements[0].value;
 				this.elements[1].value = value;

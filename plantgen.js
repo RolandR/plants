@@ -183,8 +183,10 @@ var Plantgen = new function(){
 
 			var gravityAttack = Math.sin(up + branch.angle);
 
+			var woodDensity = 0.65; // g/cm^3
+
 			// fancy physics calculations for how much gravity bends the branch
-			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * config.density;
+			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
 			branchWeight = branchWeight / 1000; // g to kg
 			
 			var i_y = (Math.PI / 4) * Math.pow(branch.width, 4) * 10e-8;
