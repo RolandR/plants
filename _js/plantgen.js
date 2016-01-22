@@ -189,7 +189,7 @@ var Plantgen = new function(){
 			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
 			branchWeight = branchWeight / 1000; // g to kg
 			
-			var i_y = (Math.PI / 4) * Math.pow(branch.width, 4) * 10e-8;
+			var i_y = (Math.PI / 4) * Math.pow(branch.width/*/config.thinBranchStrength*/, 4) * 10e-8; // Todo: implement thin branch strenght properly
 			
 			var bendDistance = ((config.gravity * gravityAttack * (branchWeight/2))*Math.pow(gravityAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
 			

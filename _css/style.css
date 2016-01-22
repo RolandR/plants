@@ -1,6 +1,8 @@
 
 @import url(openSansFont/OpenSans.css);
 
+@import url(input.css);
+
 *{
 	margin: 0px;
 	padding: 0px;
@@ -27,8 +29,13 @@ a:hover{
 }
 
 h1{
-	font-weight: 200;
+	font-weight: 300;
 	line-height: 1em;
+}
+
+h2{
+	font-weight: 300;
+	line-height: 2em;
 }
 
 #container{

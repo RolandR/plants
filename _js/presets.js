@@ -19,7 +19,9 @@ var presets = {
 		,stemAngle: 0
 		,stemWeight: 0
 		,elasticity: 13
-		,density: 0.65
+		,thinBranchStrength: 1
 		,keepStructure: true
+		// Leaves
+		//,leafLength: 10
 	}
 };

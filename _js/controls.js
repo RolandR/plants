@@ -378,9 +378,11 @@ var Controls = new function(){
 				input = inputs[i];
 				
 				for(var e in input.elements){
-					input.elements[e].value = input.value;
-					input.elements[e].oninput = input.update.bind(input);
-					input.elements[e].onclick = input.update.bind(input);
+					if(input.elements[e]){
+						input.elements[e].value = input.value;
+						input.elements[e].oninput = input.update.bind(input);
+						input.elements[e].onclick = input.update.bind(input);
+					}
 				}
 			}
 		}
