@@ -1,16 +1,12 @@
 
 var Plantgen = new function(){
-	var canvas = document.getElementById("canvas");
-	canvas.width = document.getElementById("container").offsetWidth;
-	canvas.height = document.getElementById("container").offsetHeight;
-	var context = canvas.getContext("2d");
 	
 	var rand = function(){};
 	var trees = [];
 	
 	var config = presets.default;
 
-	var renderer = new Renderer();
+	var renderer;
 	
 	generateTrees(config);
 
@@ -177,6 +173,38 @@ var Plantgen = new function(){
 
 	function Renderer(){
 
+		var canvas = document.getElementById("canvas");
+		canvas.width = document.getElementById("container").offsetWidth;
+		canvas.height = document.getElementById("container").offsetHeight;
+		var context;
+		
+		var pixi = PIXI.autoDetectRenderer(
+			 canvas.width
+			,canvas.height
+			,{
+				 view: canvas
+				,transparent: true
+				,antialiasing: true
+			}
+		);
+		
+		var webglEnabled = true;
+		var stage = new PIXI.Container();
+		
+		if(!pixi){
+			context = canvas.getContext("2d");
+			webglEnabled = false;
+		}
+
+		window.onresize = function(){
+			canvas.width = document.getElementById("container").offsetWidth;
+			canvas.height = document.getElementById("container").offsetHeight;
+			if(webglEnabled){
+			//	context.viewport(0, 0, canvas.width, canvas.height);
+			}
+			renderAll();
+		};
+
 		var now = window.performance.now();
 
 		var windDirection = degToRad(config.windDirection-180); // -180 so it's relative to positive Y
@@ -312,16 +340,8 @@ var Plantgen = new function(){
 			// Calculate end point (x and y components from angle and length)
 			var targetX = start[0] + sinParentRotation*branch.len;
 			var targetY = start[1] - cosParentRotation*branch.len;
-			
-			context.beginPath();
-			context.lineWidth = branch.width;
-			
-			context.moveTo(
-				 start[0]
-				,start[1]
-			);
-			
-			context.bezierCurveTo(
+
+			var bezier = [
 				// First control point, in straight line from previous branch
 				 start[0] + ((branch.len * config.bendiness) * sinParentAngle)
 				,start[1] - ((branch.len * config.bendiness) * cosParentAngle)
@@ -331,9 +351,9 @@ var Plantgen = new function(){
 				// Target, overshoot by half a pixel, to avoid gaps between branches
 				,targetX + (0.5 * sinParentRotation)
 				,targetY - (0.5 * cosParentRotation)
-			);
-			
-			context.stroke();
+			];
+
+			draw(branch, start, branch.width, bezier);
 
 			// Keep track of our rotation relative to the entire tree
 			parentAngle += rotation;
@@ -343,10 +363,65 @@ var Plantgen = new function(){
 			}
 			
 		}
+
+		function draw(branch, start, width, bezier){
+			if(webglEnabled){
+
+				if(!branch.graphics){
+					branch.graphics = new PIXI.Graphics();
+				}
+
+				branch.graphics.clear();
+				
+				branch.graphics.lineStyle(width, 0x000000, 1);
+				
+				branch.graphics.moveTo(
+					 start[0]
+					,start[1]
+				);
+				
+				branch.graphics.bezierCurveTo(
+					 bezier[0]
+					,bezier[1]
+					,bezier[2]
+					,bezier[3]
+					,bezier[4]
+					,bezier[5]
+				);
+				
+				stage.addChild(branch.graphics);
+			
+			} else {
+				
+				context.beginPath();
+				context.lineWidth = width;
+				
+				context.moveTo(
+					 start[0]
+					,start[1]
+				);
+				
+				context.bezierCurveTo(
+					 bezier[0]
+					,bezier[1]
+					,bezier[2]
+					,bezier[3]
+					,bezier[4]
+					,bezier[5]
+				);
+				
+				context.stroke();
+				
+			}
+		}
 		
 		function renderAll(){
-			
-			context.clearRect(0, 0, canvas.width, canvas.height);
+
+			if(webglEnabled){
+				
+			} else {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+			}
 
 			now = window.performance.now();
 			
@@ -357,6 +432,8 @@ var Plantgen = new function(){
 					,0
 				);
 			}
+
+			pixi.render(stage);
 		}
 
 		return {
@@ -373,12 +450,6 @@ var Plantgen = new function(){
 		renderer.renderAll();
 		
 	}
-	
-	window.onresize = function(){
-		canvas.width = document.getElementById("container").offsetWidth;
-		canvas.height = document.getElementById("container").offsetHeight;
-		renderer.renderAll();
-	};
 	
 	return {
 		 generateTrees: generateTrees

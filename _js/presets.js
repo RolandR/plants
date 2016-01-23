@@ -21,7 +21,7 @@ var presets = {
 		,elasticity: 13
 		,thinBranchStrength: 1
 		,keepStructure: true
-		,animateWind: true
+		,animateWind: false
 		,windSpeed: 0
 		,windDirection: 270
 		,windTurbulence: 0.3
