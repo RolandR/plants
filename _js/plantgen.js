@@ -10,7 +10,13 @@ var Plantgen = new function(){
 	
 	var config = presets.default;
 
+	var now = window.performance.now();
+
 	generateTrees(config);
+
+	if(config.animateWind){
+		wind();
+	}
 	
 	function generateTrees(newConfig){
 		config = newConfig;
@@ -168,18 +174,11 @@ var Plantgen = new function(){
 		return totalBranchCount;
 	}
 	
-	function render(branch, start, up){
-		//var targetX = start[0] + Math.sin(branch.angle)*branch.len;
-		//var targetY = start[1] - Math.cos(branch.angle)*branch.len;
+	function render(branch, start, parentAngle){
 		
-		var targetX = start[0];
-		var targetY = start[1] - branch.len;
-		
-		context.save();
-
 		var rotation;
 
-		if(config.gravity != 0 || config.animateWind){
+		if(config.gravity != 0 || config.animateWind || config.windSpeed || config.windTurbulence){
 
 			var windDirection = degToRad(config.windDirection-180);
 			var windSpeed = config.windSpeed / 1000;
@@ -187,11 +186,11 @@ var Plantgen = new function(){
 			if(!branch.turbulenceFrequency){
 				branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
 			}
-			var windTurbulence = Math.sin(window.performance.now() / branch.turbulenceFrequency) * config.windTurbulence * (1+windSpeed);
+			var windTurbulence = Math.sin(now / branch.turbulenceFrequency) * config.windTurbulence * (1+windSpeed);
 			
 			//windDirection += branch.windTurbulence * windDirection;
 			windSpeed += windTurbulence * windSpeed;
-			windSpeed += (Math.sin(window.performance.now() / 2000 + branch.turbulenceFrequency/100) + Math.sin(window.performance.now() / 3173 + branch.turbulenceFrequency/100))* config.windTurbulence / 5000;
+			windSpeed += (Math.sin(now / 2000 + branch.turbulenceFrequency/100) + Math.sin(now / 3173 + branch.turbulenceFrequency/100))* config.windTurbulence / 5000;
 
 			var woodDensity = 0.65; // g/cm^3
 			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
@@ -215,7 +214,7 @@ var Plantgen = new function(){
 			//console.log(windVector);
 			//console.log(forceAngle, forceScalar);
 
-			var forceAttack = Math.sin(up + branch.angle + forceAngle);
+			var forceAttack = Math.sin(branch.angle + parentAngle + forceAngle);
 
 			// fancy physics calculations for how much gravity bends the branch
 			
@@ -223,7 +222,7 @@ var Plantgen = new function(){
 			
 			var bendDistance = ((forceScalar * forceAttack)*Math.pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
 			
-			var originalY = Math.cos(up + branch.angle + forceAngle) * branch.len;
+			var originalY = Math.cos(branch.angle + parentAngle + forceAngle) * branch.len;
 			var newY = originalY - bendDistance;
 
 			var newX = forceAttack*branch.len;
@@ -233,29 +232,36 @@ var Plantgen = new function(){
 				newAngle = Math.atan(newX/newY);
 			}
 			
-			var rotation = (newAngle - up - forceAngle);
+			var rotation = (newAngle - forceAngle - parentAngle);
 
 			if(newY < 0){
 				rotation += Math.PI;
 			}
-			
-			up = up + rotation;
 
 		} else {
 			rotation = branch.angle;
 		}
+
+		var offsetX = (branch.centerOffset) * Math.cos(parentAngle);
+		var offsetY = (branch.centerOffset) * Math.sin(parentAngle);
+
+		start[0] += offsetX;
+		start[1] += offsetY;
+
+		var targetX = start[0] + Math.sin(rotation + parentAngle)*branch.len;
+		var targetY = start[1] - Math.cos(rotation + parentAngle)*branch.len;
 		
-		context.translate(start[0], start[1]);
-		context.rotate(rotation);
-		context.translate(0-start[0], 0-start[1]);
+		//var targetX = start[0];
+		//var targetY = start[1] - branch.len;
+		
+		//context.save();
+		
+		//context.translate(start[0], start[1]);
+		//context.rotate(rotation);
+		//context.translate(0-start[0], 0-start[1]);
 		
 		context.beginPath();
 		context.lineWidth = branch.width;
-		
-		var offsetX = (branch.centerOffset) * Math.cos(rotation);
-		var offsetY = 0 - (branch.centerOffset) * Math.sin(rotation);
-		
-		context.translate(offsetX, offsetY);
 		
 		context.moveTo(
 			 start[0]
@@ -263,10 +269,10 @@ var Plantgen = new function(){
 		);		
 		
 		context.bezierCurveTo(
-			 start[0] + ((branch.len * config.bendiness) * Math.sin(0-rotation))
-			,start[1] - ((branch.len * config.bendiness) * Math.cos(0-rotation))
-			,targetX
-			,targetY + (branch.len * config.bendiness)
+			 start[0] + ((branch.len * config.bendiness) * Math.sin(parentAngle))
+			,start[1] - ((branch.len * config.bendiness) * Math.cos(parentAngle))
+			,targetX - ((branch.len * config.bendiness) * Math.sin(rotation + parentAngle))
+			,targetY + ((branch.len * config.bendiness) * Math.cos(rotation + parentAngle))
 			,targetX
 			,targetY-0.5
 		);
@@ -295,16 +301,22 @@ var Plantgen = new function(){
 			context.stroke();
 			context.strokeStyle = '#000000';*/
 		// End Debug
+
+		parentAngle += rotation;
 		
 		for(var i in branch.branches){
-			render(branch.branches[i], [targetX, targetY], up);
+			render(branch.branches[i], [targetX, targetY], parentAngle);
 		}
 		
-		context.restore();
+		//context.restore();
 	}
 	
 	function renderAll(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		now = window.performance.now();
+
+		//context.strokeStyle = "rgba(0, 0, 0, 0.5)";
 		
 		for(var i in trees){
 			render(

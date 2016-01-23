@@ -3,7 +3,7 @@ var presets = {
 		 treeCount: 1
 		,seed: "A tree."
 		,baseWidth: 25
-		,branchOverwidth: 0.33
+		,branchOverwidth: 0.2
 		,lengthWidthRatio: 5
 		,lengthConstant: 20
 		,lengthRandomness: 1
@@ -21,7 +21,7 @@ var presets = {
 		,elasticity: 13
 		,thinBranchStrength: 1
 		,keepStructure: true
-		,animateWind: false
+		,animateWind: true
 		,windSpeed: 0
 		,windDirection: 270
 		,windTurbulence: 0.3
