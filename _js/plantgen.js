@@ -178,20 +178,16 @@ var Plantgen = new function(){
 		canvas.height = document.getElementById("container").offsetHeight;
 		var context;
 		
-		var pixi = PIXI.autoDetectRenderer(
-			 canvas.width
-			,canvas.height
-			,{
-				 view: canvas
-				,transparent: true
-				,antialiasing: true
-			}
-		);
+		var two = new Two({
+			 width: canvas.width
+			,height: canvas.height
+			,type: Two.Types.canvas
+			,domElement: canvas
+		});
 		
 		var webglEnabled = true;
-		var stage = new PIXI.Container();
 		
-		if(!pixi){
+		if(!two){
 			context = canvas.getContext("2d");
 			webglEnabled = false;
 		}
@@ -343,11 +339,11 @@ var Plantgen = new function(){
 
 			var bezier = [
 				// First control point, in straight line from previous branch
-				 start[0] + ((branch.len * config.bendiness) * sinParentAngle)
-				,start[1] - ((branch.len * config.bendiness) * cosParentAngle)
+				 0 + ((branch.len * config.bendiness) * sinParentAngle)
+				,0 - ((branch.len * config.bendiness) * cosParentAngle)
 				// Second control point, in straight line from end of current branch
-				,targetX - ((branch.len * config.bendiness) * sinParentRotation)
-				,targetY + ((branch.len * config.bendiness) * cosParentRotation)
+				,0 - ((branch.len * config.bendiness) * sinParentRotation)
+				,0 + ((branch.len * config.bendiness) * cosParentRotation)
 				// Target, overshoot by half a pixel, to avoid gaps between branches
 				,targetX + (0.5 * sinParentRotation)
 				,targetY - (0.5 * cosParentRotation)
@@ -367,29 +363,46 @@ var Plantgen = new function(){
 		function draw(branch, start, width, bezier){
 			if(webglEnabled){
 
-				if(!branch.graphics){
-					branch.graphics = new PIXI.Graphics();
-				}
+				if(!branch.curve){
 
-				branch.graphics.clear();
-				
-				branch.graphics.lineStyle(width, 0x000000, 1);
-				
-				branch.graphics.moveTo(
-					 start[0]
-					,start[1]
-				);
-				
-				branch.graphics.bezierCurveTo(
-					 bezier[0]
-					,bezier[1]
-					,bezier[2]
-					,bezier[3]
-					,bezier[4]
-					,bezier[5]
-				);
-				
-				stage.addChild(branch.graphics);
+					//branch.move = new Two.Anchor(start[0], start[1], 0, 0, 0, 0, Two.Commands.move);
+					branch.start = new Two.Anchor(
+						 start[0], start[1]
+						,0, 0
+						,bezier[0], bezier[1]
+						,Two.Commands.curve
+					);
+					
+					branch.end = new Two.Anchor(
+						 bezier[4], bezier[5]
+						,bezier[2], bezier[3]
+						,0 ,0
+						,Two.Commands.curve
+					);
+					
+					branch.curve = new Two.Path(
+						[branch.start, branch.end]
+						,false
+						,true
+					);
+					branch.curve.noFill()
+					branch.curve.linewidth = width;
+
+					two.scene.add(branch.curve);
+
+				} else {
+
+					branch.start.x = start[0];
+					branch.start.y = start[1];
+					branch.start.controls.right.x = bezier[0];
+					branch.start.controls.right.y = bezier[1];
+
+					branch.end.x = bezier[4];
+					branch.end.y = bezier[5];
+					branch.start.controls.left.x = bezier[2];
+					branch.start.controls.left.y = bezier[3];
+
+				}
 			
 			} else {
 				
@@ -433,21 +446,29 @@ var Plantgen = new function(){
 				);
 			}
 
-			pixi.render(stage);
+			//two.update();
+		}
+
+		function startLoop(){
+			two.bind('update', function(frameCount) {
+				renderAll();
+			}).play();
 		}
 
 		return {
-			renderAll: renderAll
+			 renderAll: renderAll
+			,startLoop: startLoop
 		};
 	}
 
 	function wind(){
 
-		if(config.animateWind){
+		/*if(config.animateWind){
 			window.requestAnimationFrame(wind);
-		}
+		}*/
 		
-		renderer.renderAll();
+		//renderer.renderAll();
+		renderer.startLoop();
 		
 	}
 	
