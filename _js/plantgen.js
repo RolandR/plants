@@ -10,8 +10,8 @@ var Plantgen = new function(){
 	
 	var config = presets.default;
 
-	var now = window.performance.now();
-
+	var renderer = new Renderer();
+	
 	generateTrees(config);
 
 	if(config.animateWind){
@@ -48,7 +48,8 @@ var Plantgen = new function(){
 			totalBranchCount += generateStructure(trees[i]);
 		}
 		
-		renderAll();
+		renderer = new Renderer();
+		renderer.renderAll();
 		document.getElementById("branchCount").innerHTML = totalBranchCount;
 	}
 	
@@ -173,173 +174,157 @@ var Plantgen = new function(){
 		
 		return totalBranchCount;
 	}
-	
-	function render(branch, start, parentAngle){
+
+	function Renderer(){
+
+		var now = window.performance.now();
+
+		var windDirection = degToRad(config.windDirection-180);
+		var windSpeed = config.windSpeed / 1000;
+
+		var woodDensity = 0.65; // g/cm^3
 		
-		var rotation;
+		function render(branch, start, parentAngle){
+			
+			var rotation;
 
-		if(config.gravity != 0 || config.animateWind || config.windSpeed || config.windTurbulence){
+			if(config.gravity != 0 || config.windSpeed || config.windTurbulence){
 
-			var windDirection = degToRad(config.windDirection-180);
-			var windSpeed = config.windSpeed / 1000;
+				var branchWindSpeed = windSpeed;
+				var branchWindDirection = windDirection;
 
-			if(!branch.turbulenceFrequency){
-				branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
+				if(!branch.turbulenceFrequency){
+					branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
+				}
+				var windTurbulence = Math.sin(now / branch.turbulenceFrequency) * config.windTurbulence * (1+branchWindSpeed);
+				
+				//branchWindDirection += branch.windTurbulence * branchWindDirection;
+				branchWindSpeed += windTurbulence * branchWindSpeed;
+				branchWindSpeed += (Math.sin(now / 2000 + branch.turbulenceFrequency/100) + Math.sin(now / 3173 + branch.turbulenceFrequency/100))* config.windTurbulence / 5000;
+
+				if(!branch.weight){
+					branch.weight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
+					branch.weight = branch.weight / 1000; // g to kg
+				}
+				
+				var gravityVector = [0, config.gravity * branch.weight/2];
+				var windVector = [Math.sin(branchWindDirection) * branchWindSpeed * branch.width, Math.cos(branchWindDirection) * branchWindSpeed * branch.width];
+
+				var forceVector = [gravityVector[0] + windVector[0], gravityVector[1] + windVector[1]];
+
+				var forceAngle = 0;
+				if(forceVector[1] != 0){
+					forceAngle = Math.atan(forceVector[0]/forceVector[1]);
+				}
+				if(forceVector[1] < 0){
+					forceAngle += Math.PI;
+				}
+				var forceScalar = Math.sqrt(Math.pow(forceVector[0], 2) + Math.pow(forceVector[1], 2));
+
+				var forceAttack = Math.sin(branch.angle + parentAngle + forceAngle);
+
+				// fancy physics calculations for how much gravity bends the branch
+				
+				var i_y = (Math.PI / 4) * Math.pow(branch.width/*/config.thinBranchStrength*/, 4) * 10e-8; // Todo: implement thin branch strenght properly
+				
+				var bendDistance = ((forceScalar * forceAttack)*Math.pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
+				
+				var originalY = Math.cos(branch.angle + parentAngle + forceAngle) * branch.len;
+				var newY = originalY - bendDistance;
+
+				var newX = forceAttack*branch.len;
+
+				var newAngle = Math.PI/2;
+				if(newY != 0){
+					newAngle = Math.atan(newX/newY);
+				}
+				
+				var rotation = (newAngle - forceAngle - parentAngle);
+
+				if(newY < 0){
+					rotation += Math.PI;
+				}
+
+			} else {
+				rotation = branch.angle;
 			}
-			var windTurbulence = Math.sin(now / branch.turbulenceFrequency) * config.windTurbulence * (1+windSpeed);
+
+			// Calculate some sin and cos values that will be used multiple times
+			var sinParentAngle = Math.sin(parentAngle);
+			var cosParentAngle = Math.cos(parentAngle);
+			var sinParentRotation = Math.sin(rotation + parentAngle);
+			var cosParentRotation = Math.cos(rotation + parentAngle);
+
+			var offsetX = (branch.centerOffset) * cosParentAngle;
+			var offsetY = (branch.centerOffset) * sinParentAngle;
+
+			start[0] += offsetX;
+			start[1] += offsetY;
+
+			var targetX = start[0] + sinParentRotation*branch.len;
+			var targetY = start[1] - cosParentRotation*branch.len;
 			
-			//windDirection += branch.windTurbulence * windDirection;
-			windSpeed += windTurbulence * windSpeed;
-			windSpeed += (Math.sin(now / 2000 + branch.turbulenceFrequency/100) + Math.sin(now / 3173 + branch.turbulenceFrequency/100))* config.windTurbulence / 5000;
-
-			var woodDensity = 0.65; // g/cm^3
-			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
-			branchWeight = branchWeight / 1000; // g to kg
+			context.beginPath();
+			context.lineWidth = branch.width;
 			
-			var gravityVector = [0, config.gravity * branchWeight/2];
-			var windVector = [Math.sin(windDirection) * windSpeed * branch.width, Math.cos(windDirection) * windSpeed * branch.width];
-
-			var forceVector = [gravityVector[0] + windVector[0], gravityVector[1] + windVector[1]];
-
-			var forceAngle = 0;
-			if(forceVector[1] != 0){
-				forceAngle = Math.atan(forceVector[0]/forceVector[1]);
-			}
-			if(forceVector[1] < 0){
-				forceAngle += Math.PI;
-			}
-			var forceScalar = Math.sqrt(Math.pow(forceVector[0], 2) + Math.pow(forceVector[1], 2));
-
-			//console.log(config.windDirection);
-			//console.log(windVector);
-			//console.log(forceAngle, forceScalar);
-
-			var forceAttack = Math.sin(branch.angle + parentAngle + forceAngle);
-
-			// fancy physics calculations for how much gravity bends the branch
-			
-			var i_y = (Math.PI / 4) * Math.pow(branch.width/*/config.thinBranchStrength*/, 4) * 10e-8; // Todo: implement thin branch strenght properly
-			
-			var bendDistance = ((forceScalar * forceAttack)*Math.pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
-			
-			var originalY = Math.cos(branch.angle + parentAngle + forceAngle) * branch.len;
-			var newY = originalY - bendDistance;
-
-			var newX = forceAttack*branch.len;
-
-			var newAngle = Math.PI/2;
-			if(newY != 0){
-				newAngle = Math.atan(newX/newY);
-			}
-			
-			var rotation = (newAngle - forceAngle - parentAngle);
-
-			if(newY < 0){
-				rotation += Math.PI;
-			}
-
-		} else {
-			rotation = branch.angle;
-		}
-
-		var offsetX = (branch.centerOffset) * Math.cos(parentAngle);
-		var offsetY = (branch.centerOffset) * Math.sin(parentAngle);
-
-		start[0] += offsetX;
-		start[1] += offsetY;
-
-		var targetX = start[0] + Math.sin(rotation + parentAngle)*branch.len;
-		var targetY = start[1] - Math.cos(rotation + parentAngle)*branch.len;
-		
-		//var targetX = start[0];
-		//var targetY = start[1] - branch.len;
-		
-		//context.save();
-		
-		//context.translate(start[0], start[1]);
-		//context.rotate(rotation);
-		//context.translate(0-start[0], 0-start[1]);
-		
-		context.beginPath();
-		context.lineWidth = branch.width;
-		
-		context.moveTo(
-			 start[0]
-			,start[1]
-		);		
-		
-		context.bezierCurveTo(
-			 start[0] + ((branch.len * config.bendiness) * Math.sin(parentAngle))
-			,start[1] - ((branch.len * config.bendiness) * Math.cos(parentAngle))
-			,targetX - ((branch.len * config.bendiness) * Math.sin(rotation + parentAngle))
-			,targetY + ((branch.len * config.bendiness) * Math.cos(rotation + parentAngle))
-			,targetX
-			,targetY-0.5
-		);
-		
-		context.stroke();
-
-		// Debug: Show up lines
-			/*context.beginPath();
-			context.lineWidth = 1;
-			context.strokeStyle = '#FF0000';
-			context.translate(start[0], start[1]);
-			context.rotate(0-up);
-			context.translate(0-start[0], 0-start[1]);
 			context.moveTo(
 				 start[0]
 				,start[1]
 			);
-			var debugY = start[1] - originalY;
-			context.lineTo(
-				 targetX
-				,debugY
+			
+			context.bezierCurveTo(
+				 start[0] + ((branch.len * config.bendiness) * sinParentAngle)
+				,start[1] - ((branch.len * config.bendiness) * cosParentAngle)
+				,targetX - ((branch.len * config.bendiness) * sinParentRotation)
+				,targetY + ((branch.len * config.bendiness) * cosParentRotation)
+				,targetX + (0.5 * sinParentRotation) // Overshoot by half a pixel, to avoid gaps between branches
+				,targetY - (0.5 * cosParentRotation)
 			);
-			context.translate(start[0], start[1]);
-			context.rotate(up);
-			context.translate(0-start[0], 0-start[1]);
+			
 			context.stroke();
-			context.strokeStyle = '#000000';*/
-		// End Debug
 
-		parentAngle += rotation;
-		
-		for(var i in branch.branches){
-			render(branch.branches[i], [targetX, targetY], parentAngle);
+			parentAngle += rotation;
+			
+			for(var i in branch.branches){
+				render(branch.branches[i], [targetX, targetY], parentAngle);
+			}
+			
 		}
 		
-		//context.restore();
-	}
-	
-	function renderAll(){
-		context.clearRect(0, 0, canvas.width, canvas.height);
+		function renderAll(){
+			
+			context.clearRect(0, 0, canvas.width, canvas.height);
 
-		now = window.performance.now();
-
-		//context.strokeStyle = "rgba(0, 0, 0, 0.5)";
-		
-		for(var i in trees){
-			render(
-				 trees[i].structure
-				,[(canvas.width/(config.treeCount+1)) * (~~i+1), canvas.height]
-				,0
-			);
+			now = window.performance.now();
+			
+			for(var i in trees){
+				render(
+					 trees[i].structure
+					,[(canvas.width/(config.treeCount+1)) * (~~i+1), canvas.height]
+					,0
+				);
+			}
 		}
+
+		return {
+			renderAll: renderAll
+		};
 	}
 
 	function wind(){
 
-		renderAll();
-		
 		if(config.animateWind){
 			window.requestAnimationFrame(wind);
 		}
+		
+		renderer.renderAll();
+		
 	}
 	
 	window.onresize = function(){
 		canvas.width = document.getElementById("container").offsetWidth;
 		canvas.height = document.getElementById("container").offsetHeight;
-		renderAll();
+		renderer.renderAll();
 	};
 	
 	return {
