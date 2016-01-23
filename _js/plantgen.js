@@ -179,31 +179,61 @@ var Plantgen = new function(){
 
 		var rotation;
 
-		if(controls.gravity != 0){
+		if(config.gravity != 0 || config.animateWind){
 
-			var gravityAttack = Math.sin(up + branch.angle);
+			var windDirection = degToRad(config.windDirection-180);
+			var windSpeed = config.windSpeed / 1000;
+
+			if(!branch.turbulenceFrequency){
+				branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
+			}
+			var windTurbulence = Math.sin(window.performance.now() / branch.turbulenceFrequency) * config.windTurbulence * (1+windSpeed);
+			
+			//windDirection += branch.windTurbulence * windDirection;
+			windSpeed += windTurbulence * windSpeed;
+			windSpeed += (Math.sin(window.performance.now() / 2000 + branch.turbulenceFrequency/100) + Math.sin(window.performance.now() / 3173 + branch.turbulenceFrequency/100))* config.windTurbulence / 5000;
 
 			var woodDensity = 0.65; // g/cm^3
-
-			// fancy physics calculations for how much gravity bends the branch
 			var branchWeight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
 			branchWeight = branchWeight / 1000; // g to kg
 			
+			var gravityVector = [0, config.gravity * branchWeight/2];
+			var windVector = [Math.sin(windDirection) * windSpeed * branch.width, Math.cos(windDirection) * windSpeed * branch.width];
+
+			var forceVector = [gravityVector[0] + windVector[0], gravityVector[1] + windVector[1]];
+
+			var forceAngle = 0;
+			if(forceVector[1] != 0){
+				forceAngle = Math.atan(forceVector[0]/forceVector[1]);
+			}
+			if(forceVector[1] < 0){
+				forceAngle += Math.PI;
+			}
+			var forceScalar = Math.sqrt(Math.pow(forceVector[0], 2) + Math.pow(forceVector[1], 2));
+
+			//console.log(config.windDirection);
+			//console.log(windVector);
+			//console.log(forceAngle, forceScalar);
+
+			var forceAttack = Math.sin(up + branch.angle + forceAngle);
+
+			// fancy physics calculations for how much gravity bends the branch
+			
 			var i_y = (Math.PI / 4) * Math.pow(branch.width/*/config.thinBranchStrength*/, 4) * 10e-8; // Todo: implement thin branch strenght properly
 			
-			var bendDistance = ((config.gravity * gravityAttack * (branchWeight/2))*Math.pow(gravityAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
+			var bendDistance = ((forceScalar * forceAttack)*Math.pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
 			
-			var originalY = Math.cos(up + branch.angle) * branch.len;
+			var originalY = Math.cos(up + branch.angle + forceAngle) * branch.len;
 			var newY = originalY - bendDistance;
 
-			var newX = gravityAttack*branch.len;
+			var newX = forceAttack*branch.len;
 
 			var newAngle = Math.PI/2;
 			if(newY != 0){
 				newAngle = Math.atan(newX/newY);
 			}
 			
-			var rotation = (newAngle - up);
+			var rotation = (newAngle - up - forceAngle);
 
 			if(newY < 0){
 				rotation += Math.PI;
@@ -275,12 +305,22 @@ var Plantgen = new function(){
 	
 	function renderAll(){
 		context.clearRect(0, 0, canvas.width, canvas.height);
+		
 		for(var i in trees){
 			render(
 				 trees[i].structure
 				,[(canvas.width/(config.treeCount+1)) * (~~i+1), canvas.height]
 				,0
 			);
+		}
+	}
+
+	function wind(){
+
+		renderAll();
+		
+		if(config.animateWind){
+			window.requestAnimationFrame(wind);
 		}
 	}
 	
@@ -291,6 +331,7 @@ var Plantgen = new function(){
 	};
 	
 	return {
-		generateTrees: generateTrees
+		 generateTrees: generateTrees
+		,wind: wind
 	};
 };

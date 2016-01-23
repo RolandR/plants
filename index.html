@@ -159,7 +159,34 @@
 					<label for="c-keepStructure">
 						Preserve Structure:
 					</label>
-					<input type="checkbox" id="c-keepStructure" checked="true">
+					<input type="checkbox" id="c-keepStructure">
+				</div>
+				<div class="control">
+					<label for="c-animateWind">
+						Animate wind:
+					</label>
+					<input type="checkbox" id="c-animateWind">
+				</div>
+				<div class="control">
+					<label for="c-windSpeed">
+						Wind speed:
+					</label>
+					<input type="range" min="0" max="5" step="0.01" id="c-windSpeed" />
+					<input type="text" id="c-windSpeedValue" class="rangeValue">
+				</div>
+				<div class="control">
+					<label for="c-windDirection">
+						Wind direction:
+					</label>
+					<input type="range" min="0" max="360" step="0.01" id="c-windDirection" />
+					<input type="text" id="c-windDirectionValue" class="rangeValue">
+				</div>
+				<div class="control">
+					<label for="c-windTurbulence">
+						Wind turbulence:
+					</label>
+					<input type="range" min="0" max="1" step="0.01" id="c-windTurbulence" />
+					<input type="text" id="c-windTurbulenceValue" class="rangeValue">
 				</div>
 				<hr />
 				<!--h2>Leaves</h2>

@@ -364,8 +364,69 @@ var Controls = new function(){
 			,value: true
 			,update: function(){
 				var value = this.elements[0].checked;
-				console.log(value);
 				this.value = value;
+				apply();
+			}
+		}
+		,animateWind: {
+			elements: [
+				 document.getElementById("c-animateWind")
+			]
+			,value: false
+			,update: function(){
+				var value = this.elements[0].checked;
+				this.value = value;
+				apply();
+				if(value){
+					Plantgen.wind();
+				}
+			}
+		}
+		,windSpeed: {
+			elements: [
+				 document.getElementById("c-windSpeed")
+				,document.getElementById("c-windSpeedValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = Math.pow(this.elements[0].value, 3);
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,windDirection: {
+			elements: [
+				 document.getElementById("c-windDirection")
+				,document.getElementById("c-windDirectionValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
+				apply();
+			}
+		}
+		,windTurbulence: {
+			elements: [
+				 document.getElementById("c-windTurbulence")
+				,document.getElementById("c-windTurbulenceValue")
+			]
+			,value: 0
+			,update: function(){
+				var value = this.elements[0].value;
+				this.elements[1].value = value;
+				value = parseFloat(value);
+				if(!isNaN(value)){
+					this.value = value;
+				}
 				apply();
 			}
 		}
@@ -380,6 +441,7 @@ var Controls = new function(){
 				for(var e in input.elements){
 					if(input.elements[e]){
 						input.elements[e].value = input.value;
+						input.elements[e].checked = input.value;
 						input.elements[e].oninput = input.update.bind(input);
 						input.elements[e].onclick = input.update.bind(input);
 					}
