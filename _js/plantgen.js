@@ -177,18 +177,7 @@ var Plantgen = new function(){
 		canvas.width = document.getElementById("container").offsetWidth;
 		canvas.height = document.getElementById("container").offsetHeight;
 
-		var context;
-		var useWebgl;
-		
-		if(WebGL2D.enable(canvas)){
-			console.log("Using WebGL2D");
-			context = canvas.getContext("webgl-2d"); // Attempt to get webgl context
-			useWebgl = true;
-		} else {
-			console.log("WebGL2D failed");
-			useWebgl = false;
-			context = canvas.getContext("2d");
-		}
+		var context = canvas.getContext("2d");
 
 		window.onresize = function(){
 			canvas.width = document.getElementById("container").offsetWidth;
@@ -202,113 +191,150 @@ var Plantgen = new function(){
 		var windSpeed = config.windSpeed / 1000;
 
 		var woodDensity = 0.65; // g/cm^3
+
+		var branchWindSpeed;
+		var branchWindDirection;
+		var windTurbulence;
+		var gravityVector;
+		var windVector;
+		var forceVector;
+		var forceAngle;
+		var forceScalar;
+		var forceAttack;
+		var bendDistance;
+		var originalY;
+		var newY;
+		var newX;
+		var newAngle;
+		var rotation;
+
+		var sinParentAngle;
+		var cosParentAngle;
+		var bezier;
+		var xLength;
+		var yLength;
+
+		var pi = Math.PI;
+		var sin = Math.sin;
+		var cos = Math.cos;
+		var atan = Math.atan;
+		var pow = Math.pow;
+		var sqrt = Math.sqrt;
 		
-		function render(branch, start, parentAngle){
-			
-			var rotation;
+		
+		function render(branch, start, parentAngle, sinParentAngle, cosParentAngle){
 
 			if(config.gravity != 0 || config.windSpeed || config.windTurbulence){
 
-				// Due to turbulence, branches are affected by wind individually
-				var branchWindSpeed = windSpeed;
-				var branchWindDirection = windDirection;
-
-				// Each branch has its own frequency by which it swings in wind turbulence.
-				// This way, branches seem to swing individually
-				if(!branch.turbulenceFrequency){
-					branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
-				}
+				rotation = calculateForces();
 				
-				var windTurbulence =
-					Math.sin(now / branch.turbulenceFrequency) // Sinus curve with the branches own frequency
-					* config.windTurbulence	// Times the wind turbulence value
-					* (1+branchWindSpeed);	// Wind speed increases amplitude
-				
-				// First, add turbulence depending on wind speed
-				branchWindSpeed += windTurbulence * branchWindSpeed;
-				// Second, add turbulence that acts even when there's no wind speed
-				branchWindSpeed +=
-					(
-						Math.sin(now / 2000 + branch.turbulenceFrequency/100)
-						+ Math.sin(now / 3173 + branch.turbulenceFrequency/100) // Use two waves with different frequencies to make it more irregular
-					) * config.windTurbulence / 5000;
+				function calculateForces(){
+					
+					// Due to turbulence, branches are affected by wind individually
+					branchWindSpeed = windSpeed;
+					branchWindDirection = windDirection;
 
-				// Calculate branch weight if it hasn't been set before
-				if(!branch.weight){
-					branch.weight = Math.PI * Math.pow((branch.width)/2, 2) * (branch.len) * woodDensity;
-					branch.weight = branch.weight / 1000; // g to kg
-				}
+					// Each branch has its own frequency by which it swings in wind turbulence.
+					// This way, branches seem to swing individually
+					if(!branch.turbulenceFrequency){
+						branch.turbulenceFrequency = (500 / (1+config.windSpeed)) + rand() * 300;
+					}
+					
+					windTurbulence =
+						sin(now / branch.turbulenceFrequency) // Sinus curve with the branches own frequency
+						* config.windTurbulence	// Times the wind turbulence value
+						* (1+branchWindSpeed);	// Wind speed increases amplitude
+					
+					// First, add turbulence depending on wind speed
+					branchWindSpeed += windTurbulence * branchWindSpeed;
+					// Second, add turbulence that acts even when there's no wind speed
+					branchWindSpeed +=
+						(
+							sin(now / 2000 + branch.turbulenceFrequency/100)
+							+ sin(now / 3173 + branch.turbulenceFrequency/100) // Use two waves with different frequencies to make it more irregular
+						) * config.windTurbulence / 5000;
 
-				// Split force vectors into x and y components
+					// Calculate branch weight if it hasn't been set before
+					if(!branch.weight){
+						branch.weight = pi * pow((branch.width)/2, 2) * (branch.len) * woodDensity;
+						branch.weight = branch.weight / 1000; // g to kg
+					}
 
-				var gravityVector = [
-					0, // x=0, as gravity acts only on the y axis
-					config.gravity * branch.weight/2 // gravity force
-				];
+					// Split force vectors into x and y components
 
-				var windVector = [
-					Math.sin(branchWindDirection) * branchWindSpeed * branch.width // We multiply by branch width, so that thicker branches are affected more
-					, Math.cos(branchWindDirection) * branchWindSpeed * branch.width
-				];
+					gravityVector = [
+						0, // x=0, as gravity acts only on the y axis
+						config.gravity * branch.weight/2 // gravity force
+					];
 
-				// Add the two force vectors
-				var forceVector = [gravityVector[0] + windVector[0], gravityVector[1] + windVector[1]];
+					windVector = [
+						sin(branchWindDirection) * branchWindSpeed * branch.width // We multiply by branch width, so that thicker branches are affected more
+						, cos(branchWindDirection) * branchWindSpeed * branch.width
+					];
 
-				// Calculate angle of combined forces
-				var forceAngle = 0;
-				if(forceVector[1] != 0){
-					forceAngle = Math.atan(forceVector[0]/forceVector[1]);
-				}
-				if(forceVector[1] < 0){
-					forceAngle += Math.PI;
-				}
+					// Add the two force vectors
+					forceVector = [gravityVector[0] + windVector[0], gravityVector[1] + windVector[1]];
 
-				// Calculate value of combined forces
-				var forceScalar = Math.sqrt(Math.pow(forceVector[0], 2) + Math.pow(forceVector[1], 2));
+					// Calculate angle of combined forces
+					forceAngle = 0;
+					if(forceVector[1] != 0){
+						forceAngle = atan(forceVector[0]/forceVector[1]);
+					}
+					if(forceVector[1] < 0){
+						forceAngle += pi;
+					}
 
-				// forceAttack is 0 if the force is parallel to the branch, 1 if it's 90°
-				var forceAttack = Math.sin(branch.angle + parentAngle + forceAngle);
+					// Calculate value of combined forces
+					forceScalar = sqrt(pow(forceVector[0], 2) + pow(forceVector[1], 2));
 
-				// Calculate how much the forces bend the branch
-				/*
-					                  F * l^3
-					Bend distance = -----------
-					                 3 * E * Iy
+					// forceAttack is 0 if the force is parallel to the branch, 1 if it's 90°
+					forceAttack = sin(branch.angle + parentAngle + forceAngle);
 
-					F: force
-					l: length
-					E: Elasticity module of the material
-					Iy: Second moment of area
-				*/
+					// Calculate how much the forces bend the branch
+					/*
+										  F * l^3
+						Bend distance = -----------
+										 3 * E * Iy
 
-				// Calculate second moment of area, based on a circular cross section
-				// Multiply by 10e-8 to get m^4 from cm^4
-				var i_y = (Math.PI / 4) * Math.pow(branch.width, 4) * 10e-8; // Todo: implement thin branch strenght properly
+						F: force
+						l: length
+						E: Elasticity module of the material
+						Iy: Second moment of area
+					*/
 
-				// Calculation shown above
-				var bendDistance = ((forceScalar * forceAttack) * Math.pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * i_y);
+					if(!branch.i_y){
+						// Calculate second moment of area, based on a circular cross section
+						// Multiply by 10e-8 to get m^4 from cm^4
+						branch.i_y = (pi / 4) * pow(branch.width, 4) * 10e-8; // Todo: implement thin branch strenght properly
+					}
 
-				// Original y component of the branch relative to the force, before bending
-				var originalY = Math.cos(branch.angle + parentAngle + forceAngle) * branch.len;
+					// Calculation shown above
+					bendDistance = ((forceScalar * forceAttack) * pow(forceAttack * (branch.len/100), 3)) / (3 * config.elasticity * branch.i_y);
 
-				// Bend
-				var newY = originalY - bendDistance;
+					// Original y component of the branch relative to the force, before bending
+					originalY = cos(branch.angle + parentAngle + forceAngle) * branch.len;
 
-				// X component of the branch relative to the force
-				var newX = forceAttack*branch.len;
+					// Bend
+					newY = originalY - bendDistance;
 
-				// Calculate branch angle relative to force after bending
-				var newAngle = Math.PI/2;
-				if(newY != 0){
-					newAngle = Math.atan(newX/newY);
-				}
+					// X component of the branch relative to the force
+					newX = forceAttack*branch.len;
 
-				// Rotate back, so that angle is relative to the tree (was relative to force before)
-				var rotation = (newAngle - forceAngle - parentAngle);
+					// Calculate branch angle relative to force after bending
+					newAngle = pi/2;
+					if(newY != 0){
+						newAngle = atan(newX/newY);
+					}
 
-				// Because arcustangens foo
-				if(newY < 0){
-					rotation += Math.PI;
+					// Rotate back, so that angle is relative to the tree (was relative to force before)
+					rotation = (newAngle - forceAngle - parentAngle);
+
+					// Because arcustangens foo
+					if(newY < 0){
+						rotation += pi;
+					}
+
+					return rotation;
 				}
 
 			} else {
@@ -316,32 +342,30 @@ var Plantgen = new function(){
 			}
 
 			// Calculate some sin and cos values that will be used multiple times
-			var sinParentAngle = Math.sin(parentAngle);
-			var cosParentAngle = Math.cos(parentAngle);
-			var sinParentRotation = Math.sin(rotation + parentAngle);
-			var cosParentRotation = Math.cos(rotation + parentAngle);
+			var sinParentRotation = sin(rotation + parentAngle);
+			var cosParentRotation = cos(rotation + parentAngle);
+
+			xLength = branch.len * sinParentRotation;
+			yLength = branch.len * cosParentRotation;
 
 			// Calculate offset from center
-			var offsetX = (branch.centerOffset) * cosParentAngle;
-			var offsetY = (branch.centerOffset) * sinParentAngle;
-
-			start[0] += offsetX;
-			start[1] += offsetY;
+			start[0] += branch.centerOffset * cosParentAngle;
+			start[1] += branch.centerOffset * sinParentAngle;
 
 			// Calculate end point (x and y components from angle and length)
-			var targetX = start[0] + sinParentRotation*branch.len;
-			var targetY = start[1] - cosParentRotation*branch.len;
+			var targetX = start[0] + xLength;
+			var targetY = start[1] - yLength;
 
-			var bezier = [
+			bezier = [
 				// First control point, in straight line from previous branch
-				 start[0] + ((branch.len * config.bendiness) * sinParentAngle)
-				,start[1] - ((branch.len * config.bendiness) * cosParentAngle)
+				 start[0] + branch.len * config.bendiness * sinParentAngle
+				,start[1] - branch.len * config.bendiness * cosParentAngle
 				// Second control point, in straight line from end of current branch
-				,targetX - ((branch.len * config.bendiness) * sinParentRotation)
-				,targetY + ((branch.len * config.bendiness) * cosParentRotation)
+				,targetX - config.bendiness * xLength
+				,targetY + config.bendiness * yLength
 				// Target, overshoot by half a pixel, to avoid gaps between branches
-				,targetX + (0.5 * sinParentRotation)
-				,targetY - (0.5 * cosParentRotation)
+				,targetX + 0.5 * sinParentRotation
+				,targetY - 0.5 * cosParentRotation
 			];
 
 			draw(branch, start, branch.width, bezier);
@@ -350,7 +374,7 @@ var Plantgen = new function(){
 			parentAngle += rotation;
 			
 			for(var i in branch.branches){
-				render(branch.branches[i], [targetX, targetY], parentAngle);
+				render(branch.branches[i], [targetX, targetY], parentAngle, sinParentRotation, cosParentRotation);
 			}
 			
 		}
@@ -364,20 +388,17 @@ var Plantgen = new function(){
 				,start[1]
 			);
 
-			if(useWebgl){
-				context.lineTo(bezier[4], bezier[5]);
-			} else {
-				context.bezierCurveTo(
-					 bezier[0]
-					,bezier[1]
-					,bezier[2]
-					,bezier[3]
-					,bezier[4]
-					,bezier[5]
-				);
-			}
+			context.bezierCurveTo(
+				 bezier[0]
+				,bezier[1]
+				,bezier[2]
+				,bezier[3]
+				,bezier[4]
+				,bezier[5]
+			);
 
 			context.lineWidth = width;
+			
 			context.stroke();
 			
 		}
@@ -393,6 +414,8 @@ var Plantgen = new function(){
 					 trees[i].structure
 					,[(canvas.width/(config.treeCount+1)) * (~~i+1), canvas.height]
 					,0
+					,0
+					,1
 				);
 			}
 		}
@@ -406,6 +429,7 @@ var Plantgen = new function(){
 
 		if(config.animateWind){
 			window.requestAnimationFrame(wind);
+			//setTimeout(wind, 1000/120);
 		}
 		
 		renderer.renderAll();
