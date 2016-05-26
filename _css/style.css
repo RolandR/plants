@@ -96,3 +96,7 @@ canvas{
 .control input{
 	float: right;
 }
+
+.branchLimitExceeded{
+	color: #FF5500;
+}

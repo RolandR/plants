@@ -47,6 +47,21 @@ var Controls = new function(){
 				apply();
 			}
 		}
+		,branchLimit: {
+			elements: [
+				document.getElementById("c-branchLimit")
+			]
+			,value: 2000
+			,update: function(){
+				var value = this.elements[0].value;
+				if(value > 0){
+					this.value = Math.round(value);
+				} else {
+					this.value = 1;
+				}
+				apply();
+			}
+		}
 		,lengthWidthRatio: {
 			elements: [
 				 document.getElementById("c-lengthWidthRatio")
