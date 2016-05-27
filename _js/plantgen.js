@@ -20,6 +20,7 @@ var Plantgen = new function(){
 		rand = new Math.seedrandom(config.seed);
 		
 		trees = [];
+		flatTrees = [];
 		
 		var totalBranchCount = 0;
 		
